@@ -1,0 +1,4 @@
+Add data to domains, domainz and records(need real domain name);
+/usr/share/bin/pdnssec secure-zone ZONE [ZONE ..]         Add KSK and two ZSKs;
+Send your keydata infomation to your reigstry via EPP;
+try at http://dnscheck.iis.se/

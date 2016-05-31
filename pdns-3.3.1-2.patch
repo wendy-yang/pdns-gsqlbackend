@@ -1,0 +1,310 @@
+diff -Naur pdns-3.3.1.old/modules/gmysqlbackend/gmysqlbackend.cc pdns-3.3.1/modules/gmysqlbackend/gmysqlbackend.cc
+--- pdns-3.3.1.old/modules/gmysqlbackend/gmysqlbackend.cc	2013-12-17 21:47:32.000000000 +0800
++++ pdns-3.3.1/modules/gmysqlbackend/gmysqlbackend.cc	2016-05-24 23:28:53.774334985 +0800
+@@ -50,78 +50,78 @@
+     declare(suffix,"dnssec","Assume DNSSEC Schema is in place","no");
+     declare(suffix,"innodb-read-committed","Use InnoDB READ-COMMITTED tranaction isolation level","yes");
+ 
+-    declare(suffix,"basic-query","Basic query","select content,ttl,prio,type,domain_id,name from records where type='%s' and name='%s'");
+-    declare(suffix,"id-query","Basic with ID query","select content,ttl,prio,type,domain_id,name from records where type='%s' and name='%s' and domain_id=%d");
+-    declare(suffix,"wildcard-query","Wildcard query","select content,ttl,prio,type,domain_id,name from records where type='%s' and name like '%s'");
+-    declare(suffix,"wildcard-id-query","Wildcard with ID query","select content,ttl,prio,type,domain_id,name from records where type='%s' and name like '%s' and domain_id='%d'");
+-
+-    declare(suffix,"any-query","Any query","select content,ttl,prio,type,domain_id,name from records where name='%s'");
+-    declare(suffix,"any-id-query","Any with ID query","select content,ttl,prio,type,domain_id,name from records where name='%s' and domain_id=%d");
+-    declare(suffix,"wildcard-any-query","Wildcard ANY query","select content,ttl,prio,type,domain_id,name from records where name like '%s'");
+-    declare(suffix,"wildcard-any-id-query","Wildcard ANY with ID query","select content,ttl,prio,type,domain_id,name from records where name like '%s' and domain_id='%d'");
++    declare(suffix,"basic-query","Basic query","select content,ttl,prio,type,domain_id,name from recordz where type='%s' and name='%s'");
++    declare(suffix,"id-query","Basic with ID query","select content,ttl,prio,type,domain_id,name from recordz where type='%s' and name='%s' and domain_id=%d");
++    declare(suffix,"wildcard-query","Wildcard query","select content,ttl,prio,type,domain_id,name from recordz where type='%s' and name like '%s'");
++    declare(suffix,"wildcard-id-query","Wildcard with ID query","select content,ttl,prio,type,domain_id,name from recordz where type='%s' and name like '%s' and domain_id='%d'");
++
++    declare(suffix,"any-query","Any query","select content,ttl,prio,type,domain_id,name from recordz where name='%s'");
++    declare(suffix,"any-id-query","Any with ID query","select content,ttl,prio,type,domain_id,name from recordz where name='%s' and domain_id=%d");
++    declare(suffix,"wildcard-any-query","Wildcard ANY query","select content,ttl,prio,type,domain_id,name from recordz where name like '%s'");
++    declare(suffix,"wildcard-any-id-query","Wildcard ANY with ID query","select content,ttl,prio,type,domain_id,name from recordz where name like '%s' and domain_id='%d'");
+ 
+-    declare(suffix,"list-query","AXFR query", "select content,ttl,prio,type,domain_id,name from records where domain_id='%d'");
++    declare(suffix,"list-query","AXFR query", "select content,ttl,prio,type,domain_id,name from recordz where domain_id='%d'");
+ 
+     declare(suffix,"remove-empty-non-terminals-from-zone-query", "remove all empty non-terminals from zone", "delete from records where domain_id='%d' and type is null");
+-    declare(suffix,"insert-empty-non-terminal-query", "insert empty non-terminal in zone", "insert into records (domain_id,name,type) values ('%d','%s',null)");
+-    declare(suffix,"delete-empty-non-terminal-query", "delete empty non-terminal from zone", "delete from records where domain_id='%d' and name='%s' and type is null");
++    declare(suffix,"insert-empty-non-terminal-query", "insert empty non-terminal in zone", "insert into records (domain_id,name,type) values ('%d',aLabel('%s'),null)");
++    declare(suffix,"delete-empty-non-terminal-query", "delete empty non-terminal from zone", "delete from records where domain_id='%d' and name=aLabel('%s') and type is null");
+   
+     // and now with auth
+-    declare(suffix,"basic-query-auth","Basic query","select content,ttl,prio,type,domain_id,name, auth from records where type='%s' and name='%s'");
+-    declare(suffix,"id-query-auth","Basic with ID query","select content,ttl,prio,type,domain_id,name, auth from records where type='%s' and name='%s' and domain_id=%d");
+-    declare(suffix,"wildcard-query-auth","Wildcard query","select content,ttl,prio,type,domain_id,name, auth from records where type='%s' and name like '%s'");
+-    declare(suffix,"wildcard-id-query-auth","Wildcard with ID query","select content,ttl,prio,type,domain_id,name, auth from records where type='%s' and name like '%s' and domain_id='%d'");
+-
+-    declare(suffix,"any-query-auth","Any query","select content,ttl,prio,type,domain_id,name, auth from records where name='%s'");
+-    declare(suffix,"any-id-query-auth","Any with ID query","select content,ttl,prio,type,domain_id,name, auth from records where name='%s' and domain_id=%d");
+-    declare(suffix,"wildcard-any-query-auth","Wildcard ANY query","select content,ttl,prio,type,domain_id,name, auth from records where name like '%s'");
+-    declare(suffix,"wildcard-any-id-query-auth","Wildcard ANY with ID query","select content,ttl,prio,type,domain_id,name, auth from records where name like '%s' and domain_id='%d'");
++    declare(suffix,"basic-query-auth","Basic query","select content,ttl,prio,type,domain_id,name, auth from recordz where type='%s' and name='%s'");
++    declare(suffix,"id-query-auth","Basic with ID query","select content,ttl,prio,type,domain_id,name, auth from recordz where type='%s' and name='%s' and domain_id=%d");
++    declare(suffix,"wildcard-query-auth","Wildcard query","select content,ttl,prio,type,domain_id,name, auth from recordz where type='%s' and name like '%s'");
++    declare(suffix,"wildcard-id-query-auth","Wildcard with ID query","select content,ttl,prio,type,domain_id,name, auth from recordz where type='%s' and name like '%s' and domain_id='%d'");
++
++    declare(suffix,"any-query-auth","Any query","select content,ttl,prio,type,domain_id,name, auth from recordz where name='%s'");
++    declare(suffix,"any-id-query-auth","Any with ID query","select content,ttl,prio,type,domain_id,name, auth from recordz where name='%s' and domain_id=%d");
++    declare(suffix,"wildcard-any-query-auth","Wildcard ANY query","select content,ttl,prio,type,domain_id,name, auth from recordz where name like '%s'");
++    declare(suffix,"wildcard-any-id-query-auth","Wildcard ANY with ID query","select content,ttl,prio,type,domain_id,name, auth from recordz where name like '%s' and domain_id='%d'");
+ 
+-    declare(suffix,"list-query-auth","AXFR query", "select content,ttl,prio,type,domain_id,name, auth from records where domain_id='%d' order by name, type");
++    declare(suffix,"list-query-auth","AXFR query", "select content,ttl,prio,type,domain_id,name, auth from recordz where domain_id='%d' order by name, type");
+ 
+-    declare(suffix,"insert-empty-non-terminal-query-auth", "insert empty non-terminal in zone", "insert into records (domain_id,name,type,auth) values ('%d','%s',null,'1')");
++    declare(suffix,"insert-empty-non-terminal-query-auth", "insert empty non-terminal in zone", "insert into records (domain_id,name,type,auth) values ('%d',aLabel('%s'),null,'1')");
+     
+-    declare(suffix,"master-zone-query","Data", "select master from domains where name='%s' and type='SLAVE'");
++    declare(suffix,"master-zone-query","Data", "select master from domainv where name='%s' and type='SLAVE'");
+ 
+-    declare(suffix,"info-zone-query","","select id,name,master,last_check,notified_serial,type from domains where name='%s'");
++    declare(suffix,"info-zone-query","","select id,name,master,last_check,notified_serial,type from domainv where name='%s'");
+ 
+-    declare(suffix,"info-all-slaves-query","","select id,name,master,last_check,type from domains where type='SLAVE'");
++    declare(suffix,"info-all-slaves-query","","select id,name,master,last_check,type from domainv where type='SLAVE'");
+     declare(suffix,"supermaster-query","", "select account from supermasters where ip='%s' and nameserver='%s'");
+     declare(suffix,"insert-slave-query","", "insert into domains (type,name,master,account) values('SLAVE','%s','%s','%s')");
+ 
+-    declare(suffix,"insert-record-query","", "insert into records (content,ttl,prio,type,domain_id,name) values ('%s',%d,%d,'%s',%d,'%s')");
+-    declare(suffix,"insert-record-query-auth","", "insert into records (content,ttl,prio,type,domain_id,name,auth) values ('%s',%d,%d,'%s',%d,'%s','%d')");
+-    declare(suffix,"insert-record-order-query-auth","", "insert into records (content,ttl,prio,type,domain_id,name,ordername,auth) values ('%s',%d,%d,'%s',%d,'%s','%s','%d')");
+-    declare(suffix,"insert-ent-query", "insert empty non-terminal in zone", "insert into records (type,domain_id,name) values (null,'%d','%s')");
+-    declare(suffix,"insert-ent-query-auth", "insert empty non-terminal in zone", "insert into records (type,domain_id,name,auth) values (null,'%d','%s','1')");
+-    declare(suffix,"insert-ent-order-query-auth", "insert empty non-terminal in zone", "insert into records (type,domain_id,name,ordername,auth) values (null,'%d','%s','%s','1')");
+-
+-    declare(suffix,"get-order-first-query","DNSSEC Ordering Query, first", "select ordername, name from records where domain_id=%d and ordername is not null order by 1 asc limit 1");
+-    declare(suffix,"get-order-before-query","DNSSEC Ordering Query, before", "select ordername, name from records where ordername <= '%s' and domain_id=%d and ordername is not null order by 1 desc limit 1");
+-    declare(suffix,"get-order-after-query","DNSSEC Ordering Query, after", "select min(ordername) from records where ordername > '%s' and domain_id=%d and ordername is not null");
+-    declare(suffix,"get-order-last-query","DNSSEC Ordering Query, last", "select ordername, name from records where ordername != '' and domain_id=%d and ordername is not null order by 1 desc limit 1");
+-    declare(suffix,"set-order-and-auth-query", "DNSSEC set ordering query", "update records set ordername='%s',auth=%d where name='%s' and domain_id='%d'");
+-    declare(suffix,"nullify-ordername-and-update-auth-query", "DNSSEC nullify ordername and update auth query", "update records set ordername=NULL,auth=%d where domain_id='%d' and name='%s'");
+-    declare(suffix,"nullify-ordername-and-auth-query", "DNSSEC nullify ordername and auth query", "update records set ordername=NULL,auth=0 where name='%s' and type='%s' and domain_id='%d'");
+-    declare(suffix,"set-auth-on-ds-record-query", "DNSSEC set auth on a DS record", "update records set auth=1 where domain_id='%d' and name='%s' and type='DS'");
++    declare(suffix,"insert-record-query","", "insert into records (content,ttl,prio,type,domain_id,name) values ('%s',%d,%d,'%s',%d,aLabel('%s'))");
++    declare(suffix,"insert-record-query-auth","", "insert into records (content,ttl,prio,type,domain_id,name,auth) values ('%s',%d,%d,'%s',%d,aLabel('%s'),'%d')");
++    declare(suffix,"insert-record-order-query-auth","", "insert into records (content,ttl,prio,type,domain_id,name,ordername,auth) values ('%s',%d,%d,'%s',%d,aLabel('%s'),'%s','%d')");
++    declare(suffix,"insert-ent-query", "insert empty non-terminal in zone", "insert into records (type,domain_id,name) values (null,'%d',aLabel('%s'))");
++    declare(suffix,"insert-ent-query-auth", "insert empty non-terminal in zone", "insert into records (type,domain_id,name,auth) values (null,'%d',aLabel('%s'),'1')");
++    declare(suffix,"insert-ent-order-query-auth", "insert empty non-terminal in zone", "insert into records (type,domain_id,name,ordername,auth) values (null,'%d',aLabel('%s'),'%s','1')");
++
++    declare(suffix,"get-order-first-query","DNSSEC Ordering Query, first", "select ordername, name from recordz where domain_id=%d and ordername is not null order by 1 asc limit 1");
++    declare(suffix,"get-order-before-query","DNSSEC Ordering Query, before", "select ordername, name from recordz where ordername <= '%s' and domain_id=%d and ordername is not null order by 1 desc limit 1");
++    declare(suffix,"get-order-after-query","DNSSEC Ordering Query, after", "select min(ordername) from recordz where ordername > '%s' and domain_id=%d and ordername is not null");
++    declare(suffix,"get-order-last-query","DNSSEC Ordering Query, last", "select ordername, name from recordz where ordername != '' and domain_id=%d and ordername is not null order by 1 desc limit 1");
++    declare(suffix,"set-order-and-auth-query", "DNSSEC set ordering query", "update records set ordername='%s',auth=%d where name=aLabel('%s') and domain_id='%d'");
++    declare(suffix,"nullify-ordername-and-update-auth-query", "DNSSEC nullify ordername and update auth query", "update records set ordername=NULL,auth=%d where domain_id='%d' and name=aLabel('%s')");
++    declare(suffix,"nullify-ordername-and-auth-query", "DNSSEC nullify ordername and auth query", "update records set ordername=NULL,auth=0 where name=aLabel('%s') and type='%s' and domain_id='%d'");
++    declare(suffix,"set-auth-on-ds-record-query", "DNSSEC set auth on a DS record", "update records set auth=1 where domain_id='%d' and name=aLabel('%s') and type='DS'");
+ 
+     declare(suffix,"update-serial-query","", "update domains set notified_serial=%d where id=%d");
+     declare(suffix,"update-lastcheck-query","", "update domains set last_check=%d where id=%d");
+-    declare(suffix,"zone-lastchange-query", "", "select max(change_date) from records where domain_id=%d");
+-    declare(suffix,"info-all-master-query","", "select id,name,master,last_check,notified_serial,type from domains where type='MASTER'");
++    declare(suffix,"zone-lastchange-query", "", "select max(change_date) from recordz where domain_id=%d");
++    declare(suffix,"info-all-master-query","", "select id,name,master,last_check,notified_serial,type from domainv where type='MASTER'");
+     declare(suffix,"delete-zone-query","", "delete from records where domain_id=%d");
+-    declare(suffix,"delete-rrset-query","","delete from records where domain_id=%d and name='%s' and type='%s'");
+-    declare(suffix,"add-domain-key-query","", "insert into cryptokeys (domain_id, flags, active, content) select id, %d, %d, '%s' from domains where name='%s'");
+-    declare(suffix,"list-domain-keys-query","", "select cryptokeys.id, flags, active, content from domains, cryptokeys where cryptokeys.domain_id=domains.id and name='%s'");
+-    declare(suffix,"get-domain-metadata-query","", "select content from domains, domainmetadata where domainmetadata.domain_id=domains.id and name='%s' and domainmetadata.kind='%s'");
+-    declare(suffix,"clear-domain-metadata-query","", "delete from domainmetadata where domain_id=(select id from domains where name='%s') and domainmetadata.kind='%s'");
+-    declare(suffix,"set-domain-metadata-query","", "insert into domainmetadata (domain_id, kind, content) select id, '%s', '%s' from domains where name='%s'");
+-    declare(suffix,"activate-domain-key-query","", "update cryptokeys set active=1 where domain_id=(select id from domains where name='%s') and  cryptokeys.id=%d");
+-    declare(suffix,"deactivate-domain-key-query","", "update cryptokeys set active=0 where domain_id=(select id from domains where name='%s') and  cryptokeys.id=%d");
+-    declare(suffix,"remove-domain-key-query","", "delete from cryptokeys where domain_id=(select id from domains where name='%s') and cryptokeys.id=%d");    
++    declare(suffix,"delete-rrset-query","","delete from records where domain_id=%d and name=aLabel('%s') and type='%s'");
++    declare(suffix,"add-domain-key-query","", "insert into cryptokeys (domain_id, flags, active, content) select id, %d, %d, '%s' from domainv where name='%s'");
++    declare(suffix,"list-domain-keys-query","", "select cryptokeys.id, flags, active, content from domainv, cryptokeys where cryptokeys.domain_id=domainv.id and name='%s'");
++    declare(suffix,"get-domain-metadata-query","", "select content from domainv, domainmetadata where domainmetadata.domain_id=domainv.id and name='%s' and domainmetadata.kind='%s'");
++    declare(suffix,"clear-domain-metadata-query","", "delete from domainmetadata where domain_id=(select id from domainv where name='%s') and domainmetadata.kind='%s'");
++    declare(suffix,"set-domain-metadata-query","", "insert into domainmetadata (domain_id, kind, content) select id, '%s', '%s' from domainv where name='%s'");
++    declare(suffix,"activate-domain-key-query","", "update cryptokeys set active=1 where domain_id=(select id from domainv where name='%s') and  cryptokeys.id=%d");
++    declare(suffix,"deactivate-domain-key-query","", "update cryptokeys set active=0 where domain_id=(select id from domainv where name='%s') and  cryptokeys.id=%d");
++    declare(suffix,"remove-domain-key-query","", "delete from cryptokeys where domain_id=(select id from domainv where name='%s') and cryptokeys.id=%d");    
+     declare(suffix,"get-tsig-key-query","", "select algorithm, secret from tsigkeys where name='%s'");
+ 
+-    declare(suffix,"get-all-domains-query", "Retrieve all domains", "select records.domain_id, records.name, records.content, domains.type, domains.master, domains.notified_serial, domains.last_check from records, domains where records.domain_id=domains.id and records.type='SOA'");
++    declare(suffix,"get-all-domains-query", "Retrieve all domains", "select r.domain_id, r.name, r.content, d.type, d.master, d.notified_serial, d.last_check from recordz as r, domains as d where r.domain_id=d.id and r.type='SOA'");
+   }
+   
+   DNSBackend *make(const string &suffix="")
+diff -Naur pdns-3.3.1.old/pdns/dnssec.schema.mysql.sql pdns-3.3.1/pdns/dnssec.schema.mysql.sql
+--- pdns-3.3.1.old/pdns/dnssec.schema.mysql.sql	2013-12-17 21:47:33.000000000 +0800
++++ pdns-3.3.1/pdns/dnssec.schema.mysql.sql	2016-05-24 01:48:14.172179079 +0800
+@@ -1,36 +1,35 @@
+ create table domainmetadata (
+- id         INT auto_increment,
+- domain_id  INT NOT NULL,
+- kind       VARCHAR(16),
+- content    TEXT,
+- primary key(id)
++  id         INT auto_increment,
++  domain_id  INT NOT NULL,
++  kind       VARCHAR(16),
++  content    TEXT,
++  primary key (id),
++  FOREIGN KEY (domain_id) REFERENCES domains (id)
++    ON DELETE CASCADE
++    ON UPDATE CASCADE
+ );
+ 
+-create index domainmetaidindex on domainmetadata(domain_id);               
+-
+-
+ create table cryptokeys (
+- id         INT auto_increment,
+- domain_id  INT NOT NULL,
+- flags      INT NOT NULL,
+- active     BOOL,
+- content    TEXT,
+- primary key(id)
+-);       
+-
+-create index domainidindex on cryptokeys(domain_id);           
++  id         INT auto_increment,
++  domain_id  INT NOT NULL,
++  flags      INT NOT NULL,
++  active     BOOL,
++  content    TEXT,
++  primary key (id),
++  FOREIGN KEY (domain_id) REFERENCES domains (id)
++    ON DELETE CASCADE
++    ON UPDATE CASCADE
++);
+ 
+ alter table records add ordername      VARCHAR(255) BINARY;
+ alter table records add auth bool;
+ create index recordorder on records (domain_id, ordername);
+ 
+ create table tsigkeys (
+- id         INT auto_increment,
+- name       VARCHAR(255), 
+- algorithm  VARCHAR(50),
+- secret     VARCHAR(255),
+- primary key(id)
++  id         INT auto_increment,
++  name       VARCHAR(255), 
++  algorithm  VARCHAR(50),
++  secret     VARCHAR(255),
++  primary key (id),
++  unique key namealgoindex (name, algorithm)
+ );
+-
+-create unique index namealgoindex on tsigkeys(name, algorithm);
+-alter table records change column type type VARCHAR(10);
+diff -Naur pdns-3.3.1.old/pdns/idn.schema.mysql.sql pdns-3.3.1/pdns/idn.schema.mysql.sql
+--- pdns-3.3.1.old/pdns/idn.schema.mysql.sql	1970-01-01 08:00:00.000000000 +0800
++++ pdns-3.3.1/pdns/idn.schema.mysql.sql	2016-05-24 22:52:12.227032373 +0800
+@@ -0,0 +1,56 @@
++CREATE TABLE domainz (
++  id int(11) NOT NULL AUTO_INCREMENT,
++  domain_id int(11) NOT NULL,
++  name varchar(191) NOT NULL,
++  PRIMARY KEY (id),
++  FOREIGN KEY (domain_id) REFERENCES domains (id)
++    ON DELETE CASCADE
++    ON UPDATE CASCADE,
++  UNIQUE KEY name (name)
++) ENGINE=InnoDB;
++
++CREATE VIEW domainv AS
++SELECT
++  s.id AS id,
++  z.name AS name,
++  s.master AS master,
++  s.last_check AS last_check,
++  s.type AS type,
++  s.notified_serial AS notified_serial, 
++  s.account AS account
++FROM domains s JOIN domainz z
++WHERE s.id = z.domain_id;
++
++CREATE VIEW recordz AS
++SELECT
++  r.id AS id,
++  r.domain_id AS domain_id,
++  if(r.name = '', z.name, concat(r.name,'.',z.name)) AS name,
++  r.type AS type,
++  r.content AS content,
++  r.ttl AS ttl,
++  r.prio AS prio,
++  r.change_date AS change_date,
++  r.ordername AS ordername,
++  r.auth AS auth
++FROM records r JOIN domainz z
++WHERE r.domain_id = z.domain_id;
++
++DELIMITER $$
++drop function if exists aLabel$$
++create function aLabel(str varchar(511))
++  returns varchar(63)
++begin
++  declare pos int;
++  set str = reverse(str);
++  set pos = locate('.', str);
++  if pos=0 then
++    return reverse(str);
++  end if;
++  set pos = locate('.', str, pos+1);
++  if pos<>0 then
++    return reverse(substring(str, pos+1));
++  end if;
++  return '';
++end$$
++DELIMITER ;
+diff -Naur pdns-3.3.1.old/pdns/no-dnssec.schema.mysql.sql pdns-3.3.1/pdns/no-dnssec.schema.mysql.sql
+--- pdns-3.3.1.old/pdns/no-dnssec.schema.mysql.sql	2013-12-17 21:47:33.000000000 +0800
++++ pdns-3.3.1/pdns/no-dnssec.schema.mysql.sql	2016-05-24 02:12:02.415688250 +0800
+@@ -1,31 +1,31 @@
+ create table domains (
+- id              INT auto_increment,
+- name            VARCHAR(255) NOT NULL,
+- master          VARCHAR(128) DEFAULT NULL,
+- last_check      INT DEFAULT NULL,
+- type            VARCHAR(6) NOT NULL,
+- notified_serial INT DEFAULT NULL, 
+- account         VARCHAR(40) DEFAULT NULL,
+- primary key (id)
++  id              INT auto_increment,
++  name            VARCHAR(191) NOT NULL,
++  master          VARCHAR(128) DEFAULT NULL,
++  last_check      INT DEFAULT NULL,
++  type            VARCHAR(6) NOT NULL,
++  notified_serial INT DEFAULT NULL, 
++  account         VARCHAR(40) DEFAULT NULL,
++  primary key (id),
++  UNIQUE KEY name_index (name)
+ ) Engine=InnoDB;
+ 
+-CREATE UNIQUE INDEX name_index ON domains(name);
+-
+ CREATE TABLE records (
+   id              INT auto_increment,
+-  domain_id       INT DEFAULT NULL,
+-  name            VARCHAR(255) DEFAULT NULL,
++  domain_id       INT NOT NULL,
++  name            VARCHAR(63) NOT NULL,
+   type            VARCHAR(10) DEFAULT NULL,
+   content         VARCHAR(64000) DEFAULT NULL,
+   ttl             INT DEFAULT NULL,
+   prio            INT DEFAULT NULL,
+   change_date     INT DEFAULT NULL,
+-  primary key(id)
++  primary key (id),
++  FOREIGN KEY (domain_id) REFERENCES domains (id)
++    ON DELETE CASCADE
++    ON UPDATE CASCADE,
++  KEY nametype_index (name, type)
+ ) Engine=InnoDB;
+ 
+-CREATE INDEX nametype_index ON records(name,type);
+-CREATE INDEX domain_id ON records(domain_id);
+-
+ create table supermasters (
+   ip         VARCHAR(64) NOT NULL, 
+   nameserver VARCHAR(255) NOT NULL, 
